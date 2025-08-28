@@ -11,6 +11,8 @@ from .intent_router import classify_intent, IntentType
 class RouterState(TypedDict):
     question: str
     intent: IntentType
+    intent_confidence: float
+    intent_reason: str
     sql_result: Dict[str, Any]
     docs_result: Dict[str, Any]
     general_result: Dict[str, Any]
@@ -19,8 +21,13 @@ class RouterState(TypedDict):
 
 def prepare_node(state: RouterState) -> RouterState:
     """준비 노드: 질문의 의도를 분류"""
-    intent = classify_intent(state["question"])
-    return {**state, "intent": intent}
+    intent_result = classify_intent(state["question"])
+    return {
+        **state, 
+        "intent": intent_result["intent"],
+        "intent_confidence": intent_result["confidence"],
+        "intent_reason": intent_result["reason"]
+    }
 
 
 def route_node(state: RouterState) -> RouterState:
