@@ -74,16 +74,76 @@ def parse_sections(documents: List[Document]) -> List[Dict[str, Any]]:
     
     for doc in tqdm.tqdm(documents, desc="섹션 파싱"):
         try:
+            # HTML 파싱을 위한 정규표현식
+            import re
+            
+            # 원본 HTML 파일에서 직접 헤더 추출
+            source_path = doc.metadata.get('source', '')
+            original_html = ""
+            if source_path and os.path.exists(source_path):
+                with open(source_path, 'r', encoding='utf-8') as f:
+                    original_html = f.read()
+            
+            # HTML title 태그 추출
+            title_tag = None
+            title_match = re.search(r'<title[^>]*>(.*?)</title>', original_html, re.IGNORECASE | re.DOTALL)
+            if title_match:
+                title_tag = title_match.group(1).strip()
+            
+            # H1, H2, H3 태그 직접 추출
+            h1_matches = re.findall(r'<h1[^>]*>(.*?)</h1>', original_html, re.IGNORECASE | re.DOTALL)
+            h2_matches = re.findall(r'<h2[^>]*>(.*?)</h2>', original_html, re.IGNORECASE | re.DOTALL)
+            h3_matches = re.findall(r'<h3[^>]*>(.*?)</h3>', original_html, re.IGNORECASE | re.DOTALL)
+            
+            # 디버깅: 원본 HTML 내용 확인
+            if source_path.endswith('sagemaker-getting-started.html'):
+                print(f"원본 HTML 내용 (처음 500자): {original_html[:500]}")
+                print(f"H1 매치: {h1_matches}")
+                print(f"H2 매치: {h2_matches}")
+                print(f"H3 매치: {h3_matches}")
+            
+            # HTML 태그 제거
+            def clean_html(text):
+                return re.sub(r'<[^>]+>', '', text).strip()
+            
+            h1_headers = [clean_html(h1) for h1 in h1_matches]
+            h2_headers = [clean_html(h2) for h2 in h2_matches]
+            h3_headers = [clean_html(h3) for h3 in h3_matches]
+            
             # 헤더 기반으로 섹션 분할
             doc_sections = header_splitter.split_text(doc.page_content)
             
             for i, section in enumerate(doc_sections):
+                # 섹션 메타데이터 구조 확인
+                section_headers = section.metadata.get("headers", {})
+                
+                # 직접 추출한 헤더 정보로 보완
+                manual_headers = {}
+                if h1_headers:
+                    manual_headers["H1"] = h1_headers[0]  # 첫 번째 H1을 메인 제목으로
+                if h2_headers:
+                    manual_headers["H2"] = h2_headers[0]  # 첫 번째 H2를 메인 섹션으로
+                if h3_headers:
+                    manual_headers["H3"] = h3_headers[0]  # 첫 번째 H3을 서브 섹션으로
+                
+                # 기존 헤더와 수동 추출 헤더 병합
+                combined_headers = {**section_headers, **manual_headers}
+                
+                # 디버깅: 첫 번째 섹션의 메타데이터 구조 출력
+                if i == 0:
+                    print(f"첫 번째 섹션 메타데이터 구조:")
+                    print(f"  전체 메타데이터: {section.metadata}")
+                    print(f"  headers 키: {section.metadata.get('headers', '없음')}")
+                    print(f"  수동 추출 헤더: {manual_headers}")
+                    print(f"  병합된 헤더: {combined_headers}")
+                
                 section_data = {
                     "content": section.page_content,
                     "metadata": {
                         **doc.metadata,
                         "section_order": i,
-                        "section_headers": section.metadata.get("headers", {})
+                        "section_headers": combined_headers,
+                        "title_tag": title_tag
                     }
                 }
                 sections.append(section_data)
@@ -179,10 +239,37 @@ def attach_metadata(chunks: List[Dict[str, Any]], version_date: str, doc_type: s
             "order": chunk["metadata"].get("chunk_order", 0)
         })
         
-        # 제목 추출 (H1 → title, H2/H3 → section)
-        headers = chunk["metadata"].get("section_headers", {})
-        chunk["metadata"]["title"] = headers.get("H1", "Unknown Title")
-        chunk["metadata"]["section"] = headers.get("H2", headers.get("H3", "Unknown Section"))
+        # 헤더 정보 추출 - 다양한 키 시도
+        headers = {}
+        if "section_headers" in chunk["metadata"]:
+            headers = chunk["metadata"]["section_headers"]
+        elif "headers" in chunk["metadata"]:
+            headers = chunk["metadata"]["headers"]
+        
+        # 제목 추출 로직 개선
+        # 1. H1이 있으면 사용
+        # 2. 없으면 title 태그 사용
+        # 3. 그것도 없으면 파일명 사용
+        title = headers.get("H1")
+        if not title:
+            title = chunk["metadata"].get("title_tag")  # HTML title 태그
+        if not title:
+            # 파일명에서 제목 추출
+            doc_id = Path(chunk["metadata"]["source"]).stem
+            title = doc_id.replace("-", " ").replace("_", " ").title()
+        
+        # 섹션 추출 로직 개선
+        # 1. H2 우선
+        # 2. H3 차선
+        # 3. 없으면 "General"
+        section = headers.get("H2")
+        if not section:
+            section = headers.get("H3")
+        if not section:
+            section = "General"
+        
+        chunk["metadata"]["title"] = title
+        chunk["metadata"]["section"] = section
         
         # URL 설정
         doc_id = Path(chunk["metadata"]["source"]).stem
@@ -248,10 +335,13 @@ def embed_and_store(chunks: List[Dict[str, Any]], index_dir: str) -> None:
         try:
             embedding = embeddings.embed_query(chunk["content"])
             
-            # 메타데이터 정리 (Chroma는 기본 타입만 허용)
+            # 메타데이터 정리 (Chroma는 기본 타입만 허용, None 값 제거)
             clean_metadata = {}
             for key, value in chunk["metadata"].items():
-                if isinstance(value, (str, int, float, bool)) or value is None:
+                if value is None:
+                    # None 값은 빈 문자열로 변환
+                    clean_metadata[key] = ""
+                elif isinstance(value, (str, int, float, bool)):
                     clean_metadata[key] = value
                 elif isinstance(value, dict):
                     # 딕셔너리는 JSON 문자열로 변환
