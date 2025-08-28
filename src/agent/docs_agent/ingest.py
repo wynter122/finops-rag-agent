@@ -7,6 +7,8 @@ import argparse
 import hashlib
 import json
 import os
+import re
+import unicodedata
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from urllib.parse import urlparse
@@ -18,6 +20,17 @@ from langchain.schema import Document
 import tqdm
 from dotenv import load_dotenv
 
+# HTML 정제를 위한 라이브러리
+try:
+    from bs4 import BeautifulSoup
+    import ftfy
+    BEAUTIFULSOUP_AVAILABLE = True
+    FTFY_AVAILABLE = True
+except ImportError:
+    print("⚠️  BeautifulSoup4 또는 ftfy가 설치되지 않았습니다. 기본 정제만 사용합니다.")
+    BEAUTIFULSOUP_AVAILABLE = False
+    FTFY_AVAILABLE = False
+
 # web_scraper 모듈 import
 from web_scraper import SageMakerDocScraper
 
@@ -27,6 +40,54 @@ os.chdir(project_root)
 
 # .env 파일 로드
 load_dotenv()
+
+
+def clean_html_for_text(html: str) -> str:
+    """
+    HTML을 깨끗한 텍스트로 변환
+    
+    Args:
+        html: 원본 HTML 문자열
+        
+    Returns:
+        정제된 텍스트
+    """
+    if BEAUTIFULSOUP_AVAILABLE:
+        # BeautifulSoup을 사용한 고급 정제
+        soup = BeautifulSoup(html, "lxml")
+        
+        # 전형적 노이즈 제거
+        for selector in ["header", "footer", "nav", "aside", "script", "style", ".breadcrumb", ".sidebar"]:
+            for tag in soup.select(selector):
+                tag.decompose()
+        
+        # 텍스트 추출
+        text = soup.get_text("\n")
+    else:
+        # 기본 정규표현식 정제
+        # HTML 태그 제거
+        text = re.sub(r'<[^>]+>', '', html)
+        # HTML 엔티티 디코딩
+        text = text.replace('&nbsp;', ' ').replace('&amp;', '&').replace('&lt;', '<').replace('&gt;', '>')
+    
+    # 인코딩/특수문자 정규화
+    if FTFY_AVAILABLE:
+        text = ftfy.fix_text(text)
+    
+    text = unicodedata.normalize("NFKC", text)
+    
+    # 중복 라인/공백 줄 제거
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    
+    # 중복 라인 제거 (순서 유지)
+    dedup = []
+    seen = set()
+    for line in lines:
+        if line not in seen:
+            seen.add(line)
+            dedup.append(line)
+    
+    return "\n".join(dedup)
 
 
 def scrape_and_load_documents() -> List[Document]:
@@ -43,7 +104,7 @@ def scrape_and_load_documents() -> List[Document]:
     
     # doc_urls에서 URL 목록 가져오기
     from doc_urls import get_combined_urls
-    doc_urls = get_combined_urls()
+    doc_urls = get_combined_urls(limit=2)
     
     print(f"스크래핑할 URL 수: {len(doc_urls)}")
     
@@ -102,6 +163,9 @@ def parse_sections(documents: List[Document]) -> List[Dict[str, Any]]:
             # 스크래핑된 HTML 내용 사용
             original_html = doc.page_content
             
+            # HTML 정제
+            clean_text = clean_html_for_text(original_html)
+            
             # HTML title 태그 추출
             title_tag = None
             title_match = re.search(r'<title[^>]*>(.*?)</title>', original_html, re.IGNORECASE | re.DOTALL)
@@ -129,8 +193,8 @@ def parse_sections(documents: List[Document]) -> List[Dict[str, Any]]:
             h2_headers = [clean_html(h2) for h2 in h2_matches]
             h3_headers = [clean_html(h3) for h3 in h3_matches]
             
-            # 헤더 기반으로 섹션 분할
-            doc_sections = header_splitter.split_text(doc.page_content)
+            # 헤더 기반으로 섹션 분할 (정제된 텍스트 사용)
+            doc_sections = header_splitter.split_text(clean_text)
             
             for i, section in enumerate(doc_sections):
                 # 섹션 메타데이터 구조 확인
@@ -175,7 +239,7 @@ def parse_sections(documents: List[Document]) -> List[Dict[str, Any]]:
     return sections
 
 
-def chunk_text(sections: List[Dict[str, Any]], chunk_size: int = 2000, chunk_overlap: int = 200) -> List[Dict[str, Any]]:
+def chunk_text(sections: List[Dict[str, Any]], chunk_size: int = 1200, chunk_overlap: int = 120) -> List[Dict[str, Any]]:
     """
     길이 기준으로 청크 생성 (500-800 토큰 목표)
     
@@ -336,6 +400,7 @@ def embed_and_store(chunks: List[Dict[str, Any]], index_dir: str) -> None:
     texts_to_add = []
     metadatas_to_add = []
     ids_to_add = []
+    embeddings_to_add = []
     
     for chunk in tqdm.tqdm(chunks, desc="임베딩 처리"):
         # 텍스트 해시 생성
@@ -369,6 +434,7 @@ def embed_and_store(chunks: List[Dict[str, Any]], index_dir: str) -> None:
             texts_to_add.append(chunk["content"])
             metadatas_to_add.append(clean_metadata)
             ids_to_add.append(chunk["id"])
+            embeddings_to_add.append(embedding)
             
             existing_hashes.add(text_hash)
             
@@ -381,7 +447,8 @@ def embed_and_store(chunks: List[Dict[str, Any]], index_dir: str) -> None:
         collection.add(
             documents=texts_to_add,
             metadatas=metadatas_to_add,
-            ids=ids_to_add
+            ids=ids_to_add,
+            embeddings=embeddings_to_add
         )
         print(f"저장된 새 청크 수: {len(texts_to_add)}")
     else:
@@ -444,14 +511,14 @@ def main():
     parser.add_argument(
         "--chunk-size",
         type=int,
-        default=2000,
-        help="청크 크기 (기본값: 2000)"
+        default=1200,
+        help="청크 크기 (기본값: 1200)"
     )
     parser.add_argument(
         "--chunk-overlap",
         type=int,
-        default=200,
-        help="청크 오버랩 (기본값: 200)"
+        default=120,
+        help="청크 오버랩 (기본값: 120)"
     )
     
     args = parser.parse_args()
