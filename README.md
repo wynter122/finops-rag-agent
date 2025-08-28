@@ -65,6 +65,23 @@ python -m src.run_etl --billing-ym 202508 \
   --limit 100
 ```
 
+### Streamlit UI 실행
+
+#### 방법 1: 실행 스크립트 사용
+```bash
+./run_ui.sh
+```
+
+#### 방법 2: 직접 실행
+```bash
+streamlit run src/ui/app.py
+```
+
+#### 방법 3: 개발 모드
+```bash
+streamlit run src/ui/app.py --server.port 8501 --server.address 0.0.0.0
+```
+
 ### 개발 서버 실행 (예정)
 ```bash
 # RAG 챗봇 서버 (예정)
@@ -104,6 +121,14 @@ finops-rag-agent/
 │   │   └── README.md     # ETL 문서
 │   ├── rag/              # RAG 챗봇 (예정)
 │   │   └── __init__.py
+│   ├── ui/               # Streamlit UI
+│   │   ├── app.py        # 메인 Streamlit 앱
+│   │   ├── components/   # UI 컴포넌트
+│   │   │   ├── chat_message.py  # 채팅 메시지 렌더링
+│   │   │   ├── citations.py     # 참고문헌 카드
+│   │   │   └── metrics.py       # 숫자 요약 메트릭
+│   │   └── utils/        # UI 유틸리티
+│   │       └── session.py       # 세션 상태 관리
 │   ├── test/             # 테스트 및 디버깅
 │   │   ├── test_chat.py  # 챗봇 테스트
 │   │   ├── debug_llm.py  # LLM 디버깅
@@ -148,6 +173,11 @@ OUTPUT_DIR=data
 # LLM 정규화 설정 (선택사항)
 USE_LLM_NORMALIZATION=false
 OPENAI_API_KEY=sk-your-openai-api-key
+
+# LangSmith 트레이싱 설정 (UI용)
+LANGSMITH_TRACING=true
+LANGSMITH_API_KEY=your-langsmith-api-key
+LANGCHAIN_PROJECT=finops-rag-agent
 
 # Chroma 벡터 저장소 설정 (RAG용, 예정)
 CHROMA_PERSIST_DIRECTORY=./chroma_db
