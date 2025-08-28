@@ -141,8 +141,8 @@ def get_urls_from_analysis_data_by_category() -> Dict[str, List[str]]:
     return {k: v for k, v in categories.items() if v}
 
 
-def get_combined_urls() -> List[str]:
-    """분석 데이터에서 URL 추출 (하드코딩된 URL 제거)"""
+def get_combined_urls(limit: int = None) -> List[str]:
+    """분석 데이터에서 URL 추출"""
     analysis_urls = get_urls_from_analysis_data()
     
     # 중복 제거
@@ -151,6 +151,9 @@ def get_combined_urls() -> List[str]:
     print(f"📊 URL 추출 결과:")
     print(f"  - 분석 데이터 URL: {len(analysis_urls)}개")
     print(f"  - 중복 제거 후: {len(unique_urls)}개")
+    
+    if limit:
+        unique_urls = unique_urls[:limit]
     
     return unique_urls
 
