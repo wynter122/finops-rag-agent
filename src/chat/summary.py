@@ -47,7 +47,7 @@ def _get_summary_chain():
 def _sample_for_prompt(rows: List[Dict[str, Any]]) -> str:
     return json.dumps(rows, ensure_ascii=False)
 
-def format_answer(question: str, sql: str, df: pd.DataFrame, source_files: List[str] = None) -> Dict[str, Any]:
+def summarize_answer(question: str, sql: str, df: pd.DataFrame, source_files: List[str] = None) -> Dict[str, Any]:
     """SQL 실행 결과를 포맷팅 + LLM 요약."""
     # 샘플 데이터 (최대 5행)
     sample_rows = df.head(5).to_dict(orient="records")
@@ -83,7 +83,7 @@ def format_answer(question: str, sql: str, df: pd.DataFrame, source_files: List[
         "source_files": source_files or []
     }
 
-def format_error_response(question: str, error: Exception) -> Dict[str, Any]:
+def summarize_error(question: str, error: Exception) -> Dict[str, Any]:
     """에러 응답 포맷."""
     return {
         "answer": f"질문 '{question}' 처리 중 오류가 발생했습니다: {str(error)}",

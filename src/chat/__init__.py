@@ -9,7 +9,7 @@ from .ask import ask, ask_with_debug, get_available_months, get_schema_info
 from .schema_provider import resolve_base_dir, get_schema_json
 from .nl2sql import generate_sql
 from .executor import execute_safe_sql, validate_sql
-from .formatter import format_answer, format_error_response
+from .summary import summarize_answer, summarize_error
 
 __all__ = [
     # 메인 함수들
@@ -29,9 +29,9 @@ __all__ = [
     "execute_safe_sql",
     "validate_sql",
     
-    # 포맷팅 관련
-    "format_answer",
-    "format_error_response",
+    # 요약 관련
+    "summarize_answer",
+    "summarize_error",
 ]
 
 __version__ = "0.1.0"

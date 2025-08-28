@@ -20,15 +20,27 @@ SYSTEM_PROMPT_TEMPLATE = """당신은 AWS SageMaker 비용 분석 챗봇이다.
 아래는 파일과 컬럼 목록이다:
 {schema_json}
 
+스키마 분석 가이드:
+1. **테이블 선택**: 질문의 의도에 맞는 가장 적절한 테이블을 선택하라
+   - 전체 비용 요약: monthly_summary.parquet
+   - 상세 비용 분석: fact_sagemaker_costs.parquet  
+   - 특정 서비스별 집계: agg_*.parquet (예: agg_notebook_hours.parquet)
+
+2. **컬럼 매핑**: 선택한 테이블의 실제 컬럼명을 사용하라. 제공한 파일과 컬럼 목록을 참고하여 스키마 별 컬럼을 정확히 매핑한다.
+
+3. **쿼리 작성 원칙**:
+   - 하나의 테이블에서만 쿼리하라 (UNION 사용 금지)
+   - 서비스별 분석이 필요한 경우 fact_sagemaker_costs.parquet의 is_* 컬럼을 활용하라
+   - 복잡한 집계보다는 단순한 GROUP BY를 사용하라
+
 규칙:
 - DuckDB SQL만 작성한다.
-- SELECT만 허용된다. INSERT/DELETE/UPDATE 금지.
+- SELECT만 허용된다. INSERT/DELETE/UPDATE/UNION 금지.
 - 결과는 JSON으로 {{"sql": "..."}} 형식으로만 반환한다.
 - 파일을 읽을 때는 read_parquet() 함수를 사용한다
 - 파일 경로는 상대 경로를 사용한다 (예: read_parquet('data/processed/latest/파일명.parquet'))
-- 비용 관련 질문의 경우 unblended_cost, blended_cost 컬럼을 사용한다.
-- 시간 관련 질문의 경우 bill_billingperiodstartdate, bill_billingperiodenddate 컬럼을 사용한다.
-- 서비스별 분석의 경우 product_productname, lineitem_lineitemtype 컬럼을 사용한다.
+- 위의 스키마에서 실제 존재하는 컬럼명만 사용한다.
+- 복잡한 쿼리보다는 단순하고 명확한 쿼리를 작성한다.
 - 날짜 필터는 하드코딩하지 말고 실제 데이터에 맞게 조정한다.
 """
 
@@ -71,13 +83,33 @@ def build_nl2sql_chain():
     parser = StrOutputParser()
 
     def parse_and_validate(text: str) -> str:
-        # 1) JSON 파싱
+        # 1) JSON 파싱 (더 강건한 파싱)
         try:
+            # 텍스트에서 JSON 부분만 추출
+            text = text.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            if text.endswith("```"):
+                text = text[:-3]
+            text = text.strip()
+            
             obj = json.loads(text)
             sql = obj.get("sql") or ""
         except Exception as e:
-            # 혹시 모델이 JSON 외 형식으로 응답하면 예외
-            raise ValueError(f"NL2SQL: JSON 파싱 실패: {e}. 원문: {text[:200]}")
+            # JSON 파싱 실패 시 텍스트에서 SQL 부분만 추출 시도
+            try:
+                # SQL 키워드로 시작하는 부분 찾기
+                import re
+                sql_match = re.search(r'SELECT\s+.*?(?:;|$)', text, re.IGNORECASE | re.DOTALL)
+                if sql_match:
+                    sql = sql_match.group(0).strip()
+                    if not sql.endswith(';'):
+                        sql += ';'
+                else:
+                    raise ValueError(f"SQL을 찾을 수 없습니다: {text[:200]}")
+            except Exception as e2:
+                raise ValueError(f"NL2SQL: JSON 파싱 실패: {e}. SQL 추출 실패: {e2}. 원문: {text[:200]}")
+        
         return _post_validate_sql(sql)
 
     return prompt | llm | parser | RunnableLambda(parse_and_validate)
