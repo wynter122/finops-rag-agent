@@ -685,17 +685,20 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "azure-mgmt-costmanagement" },
+    { name = "beautifulsoup4" },
     { name = "boto3" },
     { name = "chromadb" },
     { name = "cryptography" },
     { name = "duckdb" },
     { name = "fastapi" },
+    { name = "ftfy" },
     { name = "google-cloud-billing" },
     { name = "httpx" },
     { name = "langchain" },
     { name = "langchain-community" },
     { name = "langchain-openai" },
     { name = "langgraph" },
+    { name = "lxml" },
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "openai" },
@@ -725,6 +728,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "azure-mgmt-costmanagement", specifier = ">=4.0.0" },
+    { name = "beautifulsoup4", specifier = ">=4.13.5" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=23.0.0" },
     { name = "boto3", specifier = ">=1.34.0" },
     { name = "chromadb", specifier = ">=0.4.0" },
@@ -732,6 +736,7 @@ requires-dist = [
     { name = "duckdb", specifier = ">=0.9.0" },
     { name = "fastapi", specifier = ">=0.104.0" },
     { name = "flake8", marker = "extra == 'dev'", specifier = ">=6.0.0" },
+    { name = "ftfy", specifier = ">=6.3.1" },
     { name = "google-cloud-billing", specifier = ">=1.11.0" },
     { name = "httpx", specifier = ">=0.25.0" },
     { name = "isort", marker = "extra == 'dev'", specifier = ">=5.12.0" },
@@ -739,6 +744,7 @@ requires-dist = [
     { name = "langchain-community", specifier = ">=0.3.29" },
     { name = "langchain-openai", specifier = ">=0.0.5" },
     { name = "langgraph", specifier = ">=0.2.0" },
+    { name = "lxml", specifier = ">=5.4.0" },
     { name = "matplotlib", specifier = ">=3.7.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.7.0" },
     { name = "numpy", specifier = ">=1.24.0" },
@@ -890,6 +896,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/8b/02/0835e6ab9cfc03916fe3f78c0956cfcdb6ff2669ffa6651065d5ebf7fc98/fsspec-2025.7.0.tar.gz", hash = "sha256:786120687ffa54b8283d942929540d8bc5ccfa820deb555a2b5d0ed2b737bf58", size = 304432, upload-time = "2025-07-15T16:05:21.19Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/2f/e0/014d5d9d7a4564cf1c40b5039bc882db69fd881111e03ab3657ac0b218e2/fsspec-2025.7.0-py3-none-any.whl", hash = "sha256:8b012e39f63c7d5f10474de957f3ab793b47b45ae7d39f2fb735f8bbe25c0e21", size = 199597, upload-time = "2025-07-15T16:05:19.529Z" },
+]
+
+[[package]]
+name = "ftfy"
+version = "6.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "wcwidth" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a5/d3/8650919bc3c7c6e90ee3fa7fd618bf373cbbe55dff043bd67353dbb20cd8/ftfy-6.3.1.tar.gz", hash = "sha256:9b3c3d90f84fb267fe64d375a07b7f8912d817cf86009ae134aa03e1819506ec", size = 308927, upload-time = "2024-10-26T00:50:35.149Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ab/6e/81d47999aebc1b155f81eca4477a616a70f238a2549848c38983f3c22a82/ftfy-6.3.1-py3-none-any.whl", hash = "sha256:7c70eb532015cd2f9adb53f101fb6c7945988d023a085d127d1573dc49dd0083", size = 44821, upload-time = "2024-10-26T00:50:33.425Z" },
 ]
 
 [[package]]
@@ -3876,6 +3894,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/69/c4/088825b75489cb5b6a761a4542645718893d395d8c530b38734f19da44d2/watchfiles-1.1.0-cp314-cp314t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:d05686b5487cfa2e2c28ff1aa370ea3e6c5accfe6435944ddea1e10d93872147", size = 452240, upload-time = "2025-06-15T19:06:26.552Z" },
     { url = "https://files.pythonhosted.org/packages/10/8c/22b074814970eeef43b7c44df98c3e9667c1f7bf5b83e0ff0201b0bd43f9/watchfiles-1.1.0-cp314-cp314t-musllinux_1_1_aarch64.whl", hash = "sha256:d0e10e6f8f6dc5762adee7dece33b722282e1f59aa6a55da5d493a97282fedd8", size = 625607, upload-time = "2025-06-15T19:06:27.606Z" },
     { url = "https://files.pythonhosted.org/packages/32/fa/a4f5c2046385492b2273213ef815bf71a0d4c1943b784fb904e184e30201/watchfiles-1.1.0-cp314-cp314t-musllinux_1_1_x86_64.whl", hash = "sha256:af06c863f152005c7592df1d6a7009c836a247c9d8adb78fef8575a5a98699db", size = 623315, upload-time = "2025-06-15T19:06:29.076Z" },
+]
+
+[[package]]
+name = "wcwidth"
+version = "0.2.13"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6c/63/53559446a878410fc5a5974feb13d31d78d752eb18aeba59c7fef1af7598/wcwidth-0.2.13.tar.gz", hash = "sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5", size = 101301, upload-time = "2024-01-06T02:10:57.829Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fd/84/fd2ba7aafacbad3c4201d395674fc6348826569da3c0937e75505ead3528/wcwidth-0.2.13-py2.py3-none-any.whl", hash = "sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859", size = 34166, upload-time = "2024-01-06T02:10:55.763Z" },
 ]
 
 [[package]]
