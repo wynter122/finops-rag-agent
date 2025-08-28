@@ -6,8 +6,10 @@ AWS SageMaker 비용 분석을 위한 ETL 파이프라인과 RAG(Retrieval-Augme
 
 - **Redshift CUR 추출**: AWS Cost & Usage Report 데이터 자동 추출 (최적화된 컬럼 선택)
 - **데이터 변환**: SageMaker 비용 데이터 정규화 및 집계
-- **LLM 정규화**: OpenAI를 활용한 데이터 카테고리 정규화 (선택사항)
-- **RAG 기반 질의응답**: 문서 기반 지능형 응답 시스템 (예정)
+- **LLM 정규화**: OpenAI를 활용한 데이터 카테고리 정규화 (예정)
+- **LLM 기반 의도 분류**: GPT-4o-mini를 활용한 정확한 질문 의도 분류
+- **멀티 에이전트 라우팅**: SQL, Docs, General 에이전트로의 지능형 라우팅
+- **RAG 기반 질의응답**: 문서 기반 지능형 응답 시스템
 - **비용 최적화 추천**: AI 기반 비용 절감 방안 제안 (예정)
 
 ## 📋 요구사항
@@ -89,7 +91,7 @@ finops-rag-agent/
 │   │   │   └── graph.py      # LangGraph 워크플로우
 │   │   └── router/       # 의도 분류 및 라우팅
 │   │       ├── graph.py      # LangGraph 워크플로우
-│   │       └── intent_router.py # 의도 분류기
+│   │       └── intent_router.py # LLM 기반 의도 분류기
 │   ├── core/             # 핵심 모듈
 │   │   ├── config.py     # 설정 관리
 │   │   └── contracts.py  # 계약 관리 (cloud radar 시스템 전용)
