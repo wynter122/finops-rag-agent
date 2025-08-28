@@ -41,15 +41,9 @@ SYSTEM_PROMPT = """당신은 FinOps RAG Agent의 General Assistant다.
 
 
 def _make_llm():
-    model = os.getenv("GENERAL_AGENT_MODEL", "gpt-4o-mini")
-    try:
-        temperature = float(os.getenv("GENERAL_AGENT_TEMPERATURE", "0.2"))
-    except ValueError:
-        temperature = 0.2
-    try:
-        timeout = float(os.getenv("GENERAL_AGENT_TIMEOUT", "20"))
-    except ValueError:
-        timeout = 20.0
+    model = "gpt-4o-mini"
+    temperature = 0.2
+    timeout = 20.0
     return ChatOpenAI(model=model, temperature=temperature, timeout=timeout)
 
 

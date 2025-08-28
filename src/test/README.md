@@ -2,7 +2,7 @@
 python -m src.test.test_chat --test-intents
 
 # 단일 질문 테스트
-python -m src.test.test_chat --question "8월 SageMaker 비용이 얼마인가요?" --debug
+python -m src.test.test_chat --question "이번달 SageMaker 비용이 얼마인가요?" --debug
 
 # 모든 테스트 실행
 python -m src.test.test_chat --test-all

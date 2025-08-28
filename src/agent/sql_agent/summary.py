@@ -26,15 +26,9 @@ SUMMARY_PROMPT = """너는 AWS SageMaker 비용 분석 어시스턴트다.
 """
 
 def _make_summary_llm():
-    model = os.getenv("LLM_SUMMARY_MODEL", "gpt-4o-mini")
-    try:
-        temperature = float(os.getenv("LLM_SUMMARY_TEMPERATURE", "0.0"))
-    except ValueError:
-        temperature = 0.0
-    try:
-        timeout = float(os.getenv("LLM_SUMMARY_TIMEOUT", "20"))
-    except ValueError:
-        timeout = 20.0
+    model = "gpt-4o-mini"
+    temperature = 0.0
+    timeout = 20.0
     return ChatOpenAI(model=model, temperature=temperature, timeout=timeout)
 
 def _get_summary_chain():

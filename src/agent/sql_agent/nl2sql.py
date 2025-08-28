@@ -45,15 +45,9 @@ SYSTEM_PROMPT_TEMPLATE = """당신은 AWS SageMaker 비용 분석 챗봇이다.
 """
 
 def _make_llm():
-    model = os.getenv("LLM_NL2SQL_MODEL", "gpt-4o-mini")
-    try:
-        temperature = float(os.getenv("LLM_NL2SQL_TEMPERATURE", "0.0"))
-    except ValueError:
-        temperature = 0.0
-    try:
-        timeout = float(os.getenv("LLM_NL2SQL_TIMEOUT", "25"))
-    except ValueError:
-        timeout = 25.0
+    model = "gpt-4o-mini"
+    temperature = 0.0
+    timeout = 25.0
     return ChatOpenAI(model=model, temperature=temperature, timeout=timeout)
 
 def _post_validate_sql(sql: str) -> str:
