@@ -33,6 +33,7 @@ dependencies = [
     "tqdm>=4.66.0",
     "python-dateutil>=2.9.0.post0",
     "langchain-community>=0.3.29",
+    "langgraph>=0.2.0",
 ]
 
 [project.optional-dependencies]
