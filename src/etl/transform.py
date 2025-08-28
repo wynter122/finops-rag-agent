@@ -34,6 +34,19 @@ def transform_all(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     )
     fact['is_spot'] = _like(fact['lineitem_usagetype'], 'Spot')
     
+    # 추가 파생 컬럼 (규칙 기반 개선)
+    fact['is_studio'] = _like(fact['lineitem_usagetype'], 'Studio')
+    fact['is_featurestore'] = _like(fact['lineitem_usagetype'], 'FeatureStore')
+    fact['is_processing'] = _like(fact['lineitem_usagetype'], 'Processing')
+    fact['is_data_transfer'] = (
+        _like(fact['lineitem_usagetype'], 'Data-Bytes') |
+        _like(fact['lineitem_usagetype'], 'DataTransfer')
+    )
+    fact['is_storage'] = (
+        _like(fact['lineitem_usagetype'], 'VolumeUsage') |
+        _like(fact['lineitem_usagetype'], 'Storage')
+    )
+    
     # usage_hours 계산 (보수적 접근)
     has_hrs = (
         _like(fact['pricing_unit'], 'Hrs') | 
@@ -88,7 +101,68 @@ def transform_all(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     else:
         agg_notebook_hours = pd.DataFrame(columns=['instance_type', 'hours', 'cost'])
     
-    # 4. Spot/OnDemand 비용 비율
+    # 4. Studio 시간/비용 집계
+    studio_mask = fact['is_studio']
+    if studio_mask.any():
+        agg_studio_hours = fact.loc[studio_mask].groupby(
+            ['product_instancetype'], dropna=False
+        ).agg({
+            'usage_hours': 'sum',
+            'lineitem_unblendedcost': 'sum'
+        }).reset_index()
+        agg_studio_hours.columns = ['instance_type', 'hours', 'cost']
+    else:
+        agg_studio_hours = pd.DataFrame(columns=['instance_type', 'hours', 'cost'])
+    
+    # 5. FeatureStore 비용 집계
+    featurestore_mask = fact['is_featurestore']
+    if featurestore_mask.any():
+        agg_featurestore_cost = fact.loc[featurestore_mask].groupby(
+            ['lineitem_usagetype'], dropna=False
+        ).agg({
+            'lineitem_unblendedcost': 'sum'
+        }).reset_index()
+        agg_featurestore_cost.columns = ['usage_type', 'cost']
+    else:
+        agg_featurestore_cost = pd.DataFrame(columns=['usage_type', 'cost'])
+    
+    # 6. Processing 비용 집계
+    processing_mask = fact['is_processing']
+    if processing_mask.any():
+        agg_processing_cost = fact.loc[processing_mask].groupby(
+            ['product_instancetype'], dropna=False
+        ).agg({
+            'lineitem_unblendedcost': 'sum'
+        }).reset_index()
+        agg_processing_cost.columns = ['instance_type', 'cost']
+    else:
+        agg_processing_cost = pd.DataFrame(columns=['instance_type', 'cost'])
+    
+    # 7. Data Transfer 비용 집계
+    datatransfer_mask = fact['is_data_transfer']
+    if datatransfer_mask.any():
+        agg_datatransfer_cost = fact.loc[datatransfer_mask].groupby(
+            ['lineitem_usagetype'], dropna=False
+        ).agg({
+            'lineitem_unblendedcost': 'sum'
+        }).reset_index()
+        agg_datatransfer_cost.columns = ['usage_type', 'cost']
+    else:
+        agg_datatransfer_cost = pd.DataFrame(columns=['usage_type', 'cost'])
+    
+    # 8. Storage 비용 집계
+    storage_mask = fact['is_storage']
+    if storage_mask.any():
+        agg_storage_cost = fact.loc[storage_mask].groupby(
+            ['lineitem_usagetype'], dropna=False
+        ).agg({
+            'lineitem_unblendedcost': 'sum'
+        }).reset_index()
+        agg_storage_cost.columns = ['usage_type', 'cost']
+    else:
+        agg_storage_cost = pd.DataFrame(columns=['usage_type', 'cost'])
+    
+    # 9. Spot/OnDemand 비용 비율
     if len(fact) > 0:
         fact_with_pricing = fact.assign(
             pricing_type=np.where(fact['is_spot'], 'Spot', 'OnDemand')
@@ -100,7 +174,7 @@ def transform_all(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
     else:
         agg_spot_ratio = pd.DataFrame(columns=['pricing_type', 'cost'])
     
-    # 5. 월별 총 비용 요약
+    # 10. 월별 총 비용 요약
     if 'billing_ym' in fact.columns:
         monthly_summary = fact.groupby('billing_ym').agg({
             'lineitem_unblendedcost': 'sum',
@@ -117,6 +191,11 @@ def transform_all(df: pd.DataFrame) -> Dict[str, pd.DataFrame]:
         'agg_endpoint_hours': agg_endpoint_hours,
         'agg_training_cost': agg_training_cost,
         'agg_notebook_hours': agg_notebook_hours,
+        'agg_studio_hours': agg_studio_hours,
+        'agg_featurestore_cost': agg_featurestore_cost,
+        'agg_processing_cost': agg_processing_cost,
+        'agg_datatransfer_cost': agg_datatransfer_cost,
+        'agg_storage_cost': agg_storage_cost,
         'agg_spot_ratio': agg_spot_ratio,
         'monthly_summary': monthly_summary
     }

@@ -96,12 +96,23 @@ def extract_cur_from_redshift(billing_ym: str, account_ids: List[str], limit: Op
         
         logger.info("Redshift 연결 성공")
         
-        # 데이터 추출
-        df = pd.read_sql(sql, conn)
+        # 데이터 추출 (redshift_connector와 pandas 호환성 문제 해결)
+        cursor = conn.cursor()
+        cursor.execute(sql)
+        
+        # 컬럼명 가져오기
+        columns = [desc[0] for desc in cursor.description]
+        
+        # 데이터 가져오기
+        rows = cursor.fetchall()
+        
+        # DataFrame 생성
+        df = pd.DataFrame(rows, columns=columns)
         
         logger.info(f"데이터 추출 완료: {len(df)}행")
         
         # 연결 종료
+        cursor.close()
         conn.close()
         
         return df
