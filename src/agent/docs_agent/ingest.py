@@ -104,7 +104,7 @@ def scrape_and_load_documents() -> List[Document]:
     
     # doc_urls에서 URL 목록 가져오기
     from doc_urls import get_combined_urls
-    doc_urls = get_combined_urls(limit=2)
+    doc_urls = get_combined_urls()
     
     print(f"스크래핑할 URL 수: {len(doc_urls)}")
     
