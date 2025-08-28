@@ -1,6 +1,6 @@
 """
 문서 수집/파싱/임베딩 모듈
-SageMaker 공식 문서의 HTML 분할본을 수집하고 벡터스토어에 저장
+SageMaker 공식 문서를 웹에서 스크래핑하고 벡터스토어에 저장
 """
 
 import argparse
@@ -12,38 +12,60 @@ from typing import List, Dict, Any, Optional
 from urllib.parse import urlparse
 
 import chromadb
-from langchain_community.document_loaders import DirectoryLoader, BSHTMLLoader
 from langchain.text_splitter import HTMLHeaderTextSplitter, RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain.schema import Document
 import tqdm
 from dotenv import load_dotenv
 
+# web_scraper 모듈 import
+from web_scraper import SageMakerDocScraper
+
+# 프로젝트 루트 디렉토리 찾기
+project_root = Path(__file__).parent.parent.parent.parent
+os.chdir(project_root)
+
 # .env 파일 로드
 load_dotenv()
 
 
-def load_html_files(src_pattern: str) -> List[Document]:
+def scrape_and_load_documents() -> List[Document]:
     """
-    HTML 파일들을 로드하고 원문 추출
+    web_scraper를 사용하여 SageMaker 문서를 스크래핑하고 Document 형태로 변환
     
-    Args:
-        src_pattern: HTML 파일 패턴 (예: "docs/sagemaker/*.html")
-        
     Returns:
         Document 리스트 (각각 .page_content, .metadata['source'])
     """
-    print(f"HTML 파일 로딩 중: {src_pattern}")
+    print("웹 스크래핑을 통한 문서 로딩 중...")
     
-    # DirectoryLoader로 HTML 파일들 로드
-    loader = DirectoryLoader(
-        path=os.path.dirname(src_pattern),
-        glob=os.path.basename(src_pattern),
-        loader_cls=BSHTMLLoader,
-        show_progress=True
-    )
+    # SageMakerDocScraper 초기화
+    scraper = SageMakerDocScraper()
     
-    documents = loader.load()
+    # doc_urls에서 URL 목록 가져오기
+    from doc_urls import get_combined_urls
+    doc_urls = get_combined_urls()
+    
+    print(f"스크래핑할 URL 수: {len(doc_urls)}")
+    
+    # 웹 스크래핑 실행
+    scraped_docs = scraper.scrape_sagemaker_docs(doc_urls)
+    
+    # Document 형태로 변환
+    documents = []
+    for doc in scraped_docs:
+        # Document 객체 생성
+        document = Document(
+            page_content=doc['html_content'],  # 스크래핑된 HTML 내용
+            metadata={
+                'source': doc['filename'],  # 파일명을 source로 사용
+                'url': doc['url'],
+                'title': doc['title'],
+                'headers': doc['headers'],
+                'scraped_at': doc['scraped_at']
+            }
+        )
+        documents.append(document)
+    
     print(f"로드된 문서 수: {len(documents)}")
     
     return documents
@@ -77,12 +99,8 @@ def parse_sections(documents: List[Document]) -> List[Dict[str, Any]]:
             # HTML 파싱을 위한 정규표현식
             import re
             
-            # 원본 HTML 파일에서 직접 헤더 추출
-            source_path = doc.metadata.get('source', '')
-            original_html = ""
-            if source_path and os.path.exists(source_path):
-                with open(source_path, 'r', encoding='utf-8') as f:
-                    original_html = f.read()
+            # 스크래핑된 HTML 내용 사용
+            original_html = doc.page_content
             
             # HTML title 태그 추출
             title_tag = None
@@ -95,9 +113,10 @@ def parse_sections(documents: List[Document]) -> List[Dict[str, Any]]:
             h2_matches = re.findall(r'<h2[^>]*>(.*?)</h2>', original_html, re.IGNORECASE | re.DOTALL)
             h3_matches = re.findall(r'<h3[^>]*>(.*?)</h3>', original_html, re.IGNORECASE | re.DOTALL)
             
-            # 디버깅: 원본 HTML 내용 확인
-            if source_path.endswith('sagemaker-getting-started.html'):
-                print(f"원본 HTML 내용 (처음 500자): {original_html[:500]}")
+            # 디버깅: HTML 내용 확인
+            source_filename = doc.metadata.get('source', '')
+            if 'whatis' in source_filename:
+                print(f"HTML 내용 (처음 500자): {original_html[:500]}")
                 print(f"H1 매치: {h1_matches}")
                 print(f"H2 매치: {h2_matches}")
                 print(f"H3 매치: {h3_matches}")
@@ -224,13 +243,6 @@ def attach_metadata(chunks: List[Dict[str, Any]], version_date: str, doc_type: s
     """
     print("메타데이터 부착 중...")
     
-    # URL 매핑 (파일명 → URL)
-    url_mapping = {
-        "sagemaker-overview": "https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html",
-        "sagemaker-getting-started": "https://docs.aws.amazon.com/sagemaker/latest/dg/gs.html",
-        # 추가 URL 매핑은 필요에 따라 확장
-    }
-    
     for chunk in chunks:
         # 기본 메타데이터
         chunk["metadata"].update({
@@ -249,10 +261,13 @@ def attach_metadata(chunks: List[Dict[str, Any]], version_date: str, doc_type: s
         # 제목 추출 로직 개선
         # 1. H1이 있으면 사용
         # 2. 없으면 title 태그 사용
-        # 3. 그것도 없으면 파일명 사용
+        # 3. 그것도 없으면 스크래핑된 title 사용
+        # 4. 마지막으로 파일명 사용
         title = headers.get("H1")
         if not title:
             title = chunk["metadata"].get("title_tag")  # HTML title 태그
+        if not title:
+            title = chunk["metadata"].get("title")  # 스크래핑된 title
         if not title:
             # 파일명에서 제목 추출
             doc_id = Path(chunk["metadata"]["source"]).stem
@@ -271,9 +286,8 @@ def attach_metadata(chunks: List[Dict[str, Any]], version_date: str, doc_type: s
         chunk["metadata"]["title"] = title
         chunk["metadata"]["section"] = section
         
-        # URL 설정
-        doc_id = Path(chunk["metadata"]["source"]).stem
-        chunk["metadata"]["url"] = url_mapping.get(doc_id, f"https://docs.aws.amazon.com/sagemaker/latest/dg/{doc_id}.html")
+        # URL 설정 - 스크래핑된 URL 사용
+        chunk["metadata"]["url"] = chunk["metadata"].get("url", "https://docs.aws.amazon.com/sagemaker/")
     
     return chunks
 
@@ -398,7 +412,7 @@ def write_manifest(chunks: List[Dict[str, Any]], index_dir: str, version_date: s
     }
     
     # 매니페스트 저장 경로
-    manifest_dir = Path("data/processed/docs")
+    manifest_dir = Path("data/docs")
     manifest_dir.mkdir(parents=True, exist_ok=True)
     manifest_path = manifest_dir / "manifest.json"
     
@@ -411,16 +425,11 @@ def write_manifest(chunks: List[Dict[str, Any]], index_dir: str, version_date: s
 
 def main():
     """CLI 엔트리포인트"""
-    parser = argparse.ArgumentParser(description="SageMaker 문서 수집 및 벡터스토어 저장")
-    parser.add_argument(
-        "--src", 
-        default="docs/sagemaker/*.html",
-        help="HTML 파일 패턴 (기본값: docs/sagemaker/*.html)"
-    )
+    parser = argparse.ArgumentParser(description="SageMaker 문서 웹 스크래핑 및 벡터스토어 저장")
     parser.add_argument(
         "--index",
-        default=".chroma/sagemaker",
-        help="Chroma 인덱스 저장 경로 (기본값: .chroma/sagemaker)"
+        default=".chroma/sagemaker_web",
+        help="Chroma 인덱스 저장 경로 (기본값: .chroma/sagemaker_web)"
     )
     parser.add_argument(
         "--version-date",
@@ -448,11 +457,11 @@ def main():
     args = parser.parse_args()
     
     try:
-        # 1. HTML 파일 로딩
-        documents = load_html_files(args.src)
+        # 1. 웹 스크래핑을 통한 문서 로딩
+        documents = scrape_and_load_documents()
         
         if not documents:
-            print("로드할 HTML 파일이 없습니다.")
+            print("스크래핑할 문서가 없습니다.")
             return
         
         # 2. 섹션 파싱
@@ -470,7 +479,7 @@ def main():
         # 6. 매니페스트 작성
         write_manifest(chunks, args.index, args.version_date, args.doc_type)
         
-        print("문서 수집 및 벡터스토어 저장 완료!")
+        print("웹 스크래핑 및 벡터스토어 저장 완료!")
         
     except Exception as e:
         print(f"오류 발생: {e}")
