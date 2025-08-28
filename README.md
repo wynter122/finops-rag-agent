@@ -73,27 +73,54 @@ uv run uvicorn src.rag.chatbot:app --reload
 
 ```
 finops-rag-agent/
-├── src/                    # 소스 코드
-│   ├── core/              # 핵심 모듈
-│   │   └── config.py      # 설정 관리
-│   │   └── contracts.py      # 계약 관리 (cloud radar 시스템 전용)
-│   ├── etl/               # ETL 파이프라인
-│   │   ├── extract.py     # Redshift 데이터 추출 (최적화된 컬럼 선택)
-│   │   ├── transform.py   # CUR 데이터 변환
-│   │   ├── clean.py       # LLM 정규화
-│   │   ├── store.py       # 데이터 저장
-│   │   └── runner.py      # ETL 실행기
-│   ├── rag/               # RAG 챗봇 (예정)
+├── src/                   # 소스 코드
+│   ├── agent/            # AI 에이전트 모듈
+│   │   ├── docs_agent/   # 문서 기반 RAG 에이전트
+│   │   │   ├── graph.py      # LangGraph 워크플로우
+│   │   │   ├── ingest.py     # 문서 수집 및 처리
+│   │   │   └── retriever.py  # 벡터 검색 및 검색
+│   │   ├── sql_agent/    # SQL 생성 및 실행 에이전트
+│   │   │   ├── graph.py      # LangGraph 워크플로우
+│   │   │   ├── nl2sql.py     # 자연어를 SQL로 변환
+│   │   │   ├── executor.py   # SQL 실행기
+│   │   │   ├── schema_provider.py # 데이터베이스 스키마 제공
+│   │   │   └── summary.py    # SQL 결과 요약
+│   │   ├── general_agent/ # 일반 대화 에이전트
+│   │   │   └── graph.py      # LangGraph 워크플로우
+│   │   └── router/       # 의도 분류 및 라우팅
+│   │       ├── graph.py      # LangGraph 워크플로우
+│   │       └── intent_router.py # 의도 분류기
+│   ├── core/             # 핵심 모듈
+│   │   ├── config.py     # 설정 관리
+│   │   └── contracts.py  # 계약 관리 (cloud radar 시스템 전용)
+│   ├── etl/              # ETL 파이프라인
+│   │   ├── extract.py    # Redshift 데이터 추출 (최적화된 컬럼 선택)
+│   │   ├── transform.py  # CUR 데이터 변환
+│   │   ├── clean.py      # LLM 정규화
+│   │   ├── store.py      # 데이터 저장
+│   │   ├── runner.py     # ETL 실행기
+│   │   └── README.md     # ETL 문서
+│   ├── rag/              # RAG 챗봇 (예정)
 │   │   └── __init__.py
-│   ├── utils/             # 유틸리티
-│   │   ├── logging.py     # 로깅 설정
-│   │   └── lock.py        # 파일 락
-│   └── run_etl.py         # 메인 실행 파일
-├── data/                  # 데이터 저장소
-│   ├── raw/              # 원시 데이터
-│   └── processed/        # 처리된 데이터 (Parquet + CSV)
-
-├── requirements.txt       # Python 의존성
+│   ├── test/             # 테스트 및 디버깅
+│   │   ├── test_chat.py  # 챗봇 테스트
+│   │   ├── debug_llm.py  # LLM 디버깅
+│   │   └── README.md     # 테스트 문서
+│   ├── utils/            # 유틸리티
+│   │   ├── logging.py    # 로깅 설정
+│   │   └── lock.py       # 파일 락
+│   └── run_etl.py        # ETL 메인 실행 파일
+├── data/                 # 데이터 저장소
+│   ├── raw/             # 원시 데이터
+│   ├── processed/       # 처리된 데이터 (Parquet + CSV)
+│   └── logs/            # ETL 로그 파일
+├── contracts.json        # 계약 정의 파일
+├── mvp-design-doc.md     # MVP 설계 문서
+├── pyproject.toml        # Python 프로젝트 설정
+├── uv.lock              # uv 의존성 잠금 파일
+├── encrypt.sh           # 환경변수 암호화 스크립트
+├── decrypt.sh           # 환경변수 복호화 스크립트
+├── env_crypto.py        # 환경변수 암호화/복호화 도구
 └── README.md
 ```
 
