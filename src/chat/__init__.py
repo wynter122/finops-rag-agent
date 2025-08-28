@@ -7,7 +7,7 @@ DuckDB로 실행하여 결과를 반환하는 기능을 제공합니다.
 
 from .ask import ask, ask_with_debug, get_available_months, get_schema_info
 from .schema_provider import resolve_base_dir, get_schema_json
-from .nl2sql import generate_sql, parse_sql_response
+from .nl2sql import generate_sql
 from .executor import execute_safe_sql, validate_sql
 from .formatter import format_answer, format_error_response
 
@@ -24,7 +24,6 @@ __all__ = [
     
     # SQL 생성 관련
     "generate_sql",
-    "parse_sql_response",
     
     # SQL 실행 관련
     "execute_safe_sql",

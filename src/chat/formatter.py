@@ -1,38 +1,78 @@
+import os, json
 import pandas as pd
 from typing import Dict, Any, List
 
+from langchain_openai import ChatOpenAI
+from langchain.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+# 전역 요약 체인(singleton)
+_SUMMARY_CHAIN = None
+
+SUMMARY_PROMPT = """너는 AWS SageMaker 비용 분석 어시스턴트다.
+아래 정보를 바탕으로 '정확한 수치'만 사용해 짧고 명확한 한국어 문장으로 요약하라.
+- 금액은 소수점 둘째 자리까지 표기하고 USD 단위를 붙여라.
+- 한 문장으로 간결하게 답해라.
+- 불확실하면 '제공된 결과에서 확인된 값만 기준으로 요약'이라고 명시하라.
+
+[질문]
+{question}
+
+[실행한 SQL]
+{sql}
+
+[쿼리 결과 샘플(JSON, 최대 5행)]
+{sample}
+"""
+
+def _make_summary_llm():
+    model = os.getenv("LLM_SUMMARY_MODEL", "gpt-4o-mini")
+    try:
+        temperature = float(os.getenv("LLM_SUMMARY_TEMPERATURE", "0.0"))
+    except ValueError:
+        temperature = 0.0
+    try:
+        timeout = float(os.getenv("LLM_SUMMARY_TIMEOUT", "20"))
+    except ValueError:
+        timeout = 20.0
+    return ChatOpenAI(model=model, temperature=temperature, timeout=timeout)
+
+def _get_summary_chain():
+    global _SUMMARY_CHAIN
+    if _SUMMARY_CHAIN is None:
+        prompt = ChatPromptTemplate.from_template(SUMMARY_PROMPT)
+        _SUMMARY_CHAIN = prompt | _make_summary_llm() | StrOutputParser()
+    return _SUMMARY_CHAIN
+
+def _sample_for_prompt(rows: List[Dict[str, Any]]) -> str:
+    return json.dumps(rows, ensure_ascii=False)
 
 def format_answer(question: str, sql: str, df: pd.DataFrame, source_files: List[str] = None) -> Dict[str, Any]:
-    """SQL 실행 결과를 포맷팅합니다.
-    
-    Args:
-        question: 원본 질문
-        sql: 실행된 SQL 쿼리
-        df: 실행 결과 DataFrame
-        source_files: 사용된 소스 파일 목록
-        
-    Returns:
-        포맷팅된 결과 딕셔너리
-    """
-    # 샘플 데이터 추출 (최대 5행)
+    """SQL 실행 결과를 포맷팅 + LLM 요약."""
+    # 샘플 데이터 (최대 5행)
     sample_rows = df.head(5).to_dict(orient="records")
-    
-    # 숫자 컬럼들의 요약 정보 생성
+
+    # 숫자 컬럼 요약
     numeric_summary = {}
     for col in df.select_dtypes(include=['number']).columns:
         numeric_summary[col] = {
-            "sum": float(df[col].sum()),
-            "mean": float(df[col].mean()),
-            "min": float(df[col].min()),
-            "max": float(df[col].max())
+            "sum": float(df[col].sum()) if len(df) else 0.0,
+            "mean": float(df[col].mean()) if len(df) else 0.0,
+            "min": float(df[col].min()) if len(df) else 0.0,
+            "max": float(df[col].max()) if len(df) else 0.0,
         }
-    
-    # 자연어 요약 생성 (주석처리)
-    # answer = _generate_natural_language_summary(question, df, numeric_summary)
-    
-    # SQL문만 출력하도록 수정
-    answer = f"생성된 SQL:\n{sql}"
-    
+
+    # LLM 요약 실행
+    try:
+        chain = _get_summary_chain()
+        answer = chain.invoke({
+            "question": question,
+            "sql": sql,
+            "sample": _sample_for_prompt(sample_rows)
+        }).strip()
+    except Exception as e:
+        answer = f"[요약 생성 실패] {e} — SQL 결과를 반환합니다.\n생성된 SQL:\n{sql}"
+
     return {
         "answer": answer,
         "sql": sql,
@@ -43,46 +83,8 @@ def format_answer(question: str, sql: str, df: pd.DataFrame, source_files: List[
         "source_files": source_files or []
     }
 
-
-def _generate_natural_language_summary(question: str, df: pd.DataFrame, numeric_summary: Dict[str, Any]) -> str:
-    """자연어 요약을 생성합니다.
-    
-    Args:
-        question: 원본 질문
-        df: 결과 DataFrame
-        numeric_summary: 숫자 컬럼 요약 정보
-        
-    Returns:
-        자연어 요약 문자열
-    """
-    if len(df) == 0:
-        return f"질문 '{question}'에 대한 결과가 없습니다."
-    
-    # 비용 관련 질문인지 확인
-    cost_columns = [col for col in df.columns if 'cost' in col.lower()]
-    if cost_columns and any('cost' in col.lower() for col in cost_columns):
-        total_cost = sum(numeric_summary[col]['sum'] for col in cost_columns if col in numeric_summary)
-        return f"질문 '{question}'에 대한 분석 결과입니다. 총 비용은 ${total_cost:,.2f}입니다."
-    
-    # 시간 관련 질문인지 확인
-    time_columns = [col for col in df.columns if 'date' in col.lower() or 'time' in col.lower()]
-    if time_columns:
-        return f"질문 '{question}'에 대한 시간별 분석 결과입니다. 총 {len(df)}개의 레코드가 있습니다."
-    
-    # 기본 응답
-    return f"질문 '{question}'에 대한 SQL 실행 결과입니다. 총 {len(df)}개의 레코드가 있습니다."
-
-
 def format_error_response(question: str, error: Exception) -> Dict[str, Any]:
-    """에러 응답을 포맷팅합니다.
-    
-    Args:
-        question: 원본 질문
-        error: 발생한 에러
-        
-    Returns:
-        에러 응답 딕셔너리
-    """
+    """에러 응답 포맷."""
     return {
         "answer": f"질문 '{question}' 처리 중 오류가 발생했습니다: {str(error)}",
         "error": True,
