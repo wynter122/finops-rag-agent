@@ -31,6 +31,8 @@ dependencies = [
     "pyarrow>=14.0.0",
     "duckdb>=0.9.0",
     "tqdm>=4.66.0",
+    "python-dateutil>=2.9.0.post0",
+    "langchain-community>=0.3.29",
 ]
 
 [project.optional-dependencies]
