@@ -80,7 +80,9 @@ def summarize_answer(question: str, sql: str, df: pd.DataFrame, source_files: Li
         "row_count": len(df),
         "column_count": len(df.columns),
         "numeric_summary": numeric_summary,
-        "source_files": source_files or []
+        "source_files": source_files or [],
+        "intent": "sql",
+        "error": False
     }
 
 def summarize_error(question: str, error: Exception) -> Dict[str, Any]:
@@ -94,5 +96,6 @@ def summarize_error(question: str, error: Exception) -> Dict[str, Any]:
         "row_count": 0,
         "column_count": 0,
         "numeric_summary": {},
-        "source_files": []
+        "source_files": [],
+        "intent": "sql"
     }

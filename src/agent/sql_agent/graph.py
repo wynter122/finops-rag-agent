@@ -1,15 +1,21 @@
+"""
+SQL Agent: CUR 기반 비용 분석 질의 응답 그래프
+기존 ask.py의 SQL 체인 (nl2sql → exec → summary)을 이동
+"""
+
 import os
 from typing import Dict, Any, List, TypedDict
 
 from langgraph.graph import StateGraph, END
 
+# SQL Agent 내부 모듈들 import
 from .schema_provider import resolve_base_dir, get_schema_json, scan_parquet_files
 from .nl2sql import generate_sql
 from .executor import execute_safe_sql
 from .summary import summarize_answer, summarize_error
 
 
-class AskState(TypedDict):
+class SQLAgentState(TypedDict):
     question: str
     month: str
     base_dir: str
@@ -20,19 +26,19 @@ class AskState(TypedDict):
     result: dict
 
 
-def nl2sql_node(state: AskState) -> AskState:
+def nl2sql_node(state: SQLAgentState) -> SQLAgentState:
     """NL2SQL 노드: 자연어 질문을 SQL로 변환"""
     sql = generate_sql(state["question"], state["schema_json"], state["base_dir"])
     return {**state, "sql": sql}
 
 
-def exec_node(state: AskState) -> AskState:
+def exec_node(state: SQLAgentState) -> SQLAgentState:
     """실행 노드: SQL을 실행하여 DataFrame 반환"""
     df = execute_safe_sql(state["sql"])
     return {**state, "df": df}
 
 
-def summary_node(state: AskState) -> AskState:
+def summary_node(state: SQLAgentState) -> SQLAgentState:
     """요약 노드: SQL 실행 결과를 요약"""
     result = summarize_answer(
         state["question"], 
@@ -43,8 +49,8 @@ def summary_node(state: AskState) -> AskState:
     return {**state, "result": result}
 
 
-# LangGraph 파이프라인 정의
-graph = StateGraph(AskState)
+# SQL Agent StateGraph 정의
+graph = StateGraph(SQLAgentState)
 graph.add_node("nl2sql", nl2sql_node)
 graph.add_node("exec", exec_node)
 graph.add_node("summary", summary_node)
@@ -54,11 +60,20 @@ graph.add_edge("nl2sql", "exec")
 graph.add_edge("exec", "summary")
 graph.add_edge("summary", END)
 
-ASK_GRAPH = graph.compile()
+SQL_GRAPH = graph.compile()
 
 
 def ask(question: str, month: str = "latest") -> Dict[str, Any]:
-    """자연어 질문 → (NL2SQL 체인) → SQL 실행 → (요약 체인) → 결과 반환"""
+    """
+    SQL Agent 진입점: 자연어 질문 → (NL2SQL 체인) → SQL 실행 → (요약 체인) → 결과 반환
+    
+    Args:
+        question: 사용자 질문
+        month: 분석할 월 (기본값: "latest")
+        
+    Returns:
+        SQL 분석 결과
+    """
     try:
         base_dir = resolve_base_dir(month)
         schema_json = get_schema_json(base_dir)
@@ -72,7 +87,7 @@ def ask(question: str, month: str = "latest") -> Dict[str, Any]:
             "source_files": source_files
         }
         
-        final = ASK_GRAPH.invoke(state)
+        final = SQL_GRAPH.invoke(state)
         return final["result"]
         
     except Exception as e:
@@ -94,7 +109,7 @@ def ask_with_debug(question: str, month: str = "latest") -> Dict[str, Any]:
             "source_files": source_files
         }
         
-        final = ASK_GRAPH.invoke(state)
+        final = SQL_GRAPH.invoke(state)
         result = final["result"]
         
         # 디버그 정보 추가
@@ -118,6 +133,7 @@ def ask_with_debug(question: str, month: str = "latest") -> Dict[str, Any]:
 
 
 def get_available_months() -> List[str]:
+    """사용 가능한 월 목록 반환"""
     data_root = "data/processed"
     if not os.path.exists(data_root):
         return []
@@ -125,6 +141,7 @@ def get_available_months() -> List[str]:
 
 
 def get_schema_info(month: str = "latest") -> Dict[str, Any]:
+    """스키마 정보 반환"""
     try:
         base_dir = resolve_base_dir(month)
         schema_json = get_schema_json(base_dir)
