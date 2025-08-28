@@ -1,0 +1,338 @@
+🔍 Chroma DB 확인 시작...
+
+📚 컬렉션 목록: ['sagemaker_docs']
+
+📖 컬렉션 이름: sagemaker_docs
+📊 총 문서 수: 34
+
+📄 저장된 문서들 (34개):
+================================================================================
+
+📋 문서 목록 요약:
+    1. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+    2. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+    3. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+    4. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+    5. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+    6. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+    7. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+    8. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+    9. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+   10. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+   11. Amazon SageMaker Training Compiler - What Is SageMaker Training Compiler?
+   12. SageMaker AI Managed Warm Pools - How it works
+   13. SageMaker AI Managed Warm Pools - How it works
+   14. SageMaker AI Managed Warm Pools - How it works
+   15. SageMaker AI Managed Warm Pools - How it works
+   16. SageMaker AI Managed Warm Pools - How it works
+   17. SageMaker AI Managed Warm Pools - How it works
+   18. SageMaker AI Managed Warm Pools - How it works
+   19. SageMaker AI Managed Warm Pools - How it works
+   20. SageMaker AI Managed Warm Pools - How it works
+   21. SageMaker AI Managed Warm Pools - How it works
+   22. SageMaker AI Managed Warm Pools - How it works
+   23. SageMaker AI Managed Warm Pools - How it works
+   24. SageMaker AI Managed Warm Pools - How it works
+   25. SageMaker AI Managed Warm Pools - How it works
+   26. SageMaker AI Managed Warm Pools - How it works
+   27. SageMaker AI Managed Warm Pools - How it works
+   28. SageMaker AI Managed Warm Pools - How it works
+   29. SageMaker AI Managed Warm Pools - How it works
+   30. SageMaker AI Managed Warm Pools - How it works
+   31. SageMaker AI Managed Warm Pools - How it works
+   32. SageMaker AI Managed Warm Pools - How it works
+   33. SageMaker AI Managed Warm Pools - How it works
+   34. SageMaker AI Managed Warm Pools - How it works
+
+📝 상세 문서 정보 (처음 5개):
+================================================================================
+
+📝 문서 1:
+   ID: training-compiler#s00#0000
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   문서 타입: developer-guide
+   버전: 2025-08-28
+   내용 (처음 150자): Amazon SageMaker Training Compiler - Amazon SageMaker AI  
+What Is SageMaker Training Compiler?  
+How It Works...
+------------------------------------------------------------
+
+📝 문서 2:
+   ID: training-compiler#s01#0000
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   문서 타입: developer-guide
+   버전: 2025-08-28
+   내용 (처음 150자): Amazon SageMaker Training Compiler...
+------------------------------------------------------------
+
+📝 문서 3:
+   ID: training-compiler#s02#0000
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   문서 타입: developer-guide
+   버전: 2025-08-28
+   내용 (처음 150자): Important  
+Amazon Web Services (AWS) announces that there will be no new releases or versions
+            of SageMaker Training Compiler. You can con...
+------------------------------------------------------------
+
+📝 문서 4:
+   ID: training-compiler#s03#0000
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   문서 타입: developer-guide
+   버전: 2025-08-28
+   내용 (처음 150자): What Is SageMaker Training Compiler?...
+------------------------------------------------------------
+
+📝 문서 5:
+   ID: training-compiler#s04#0000
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   문서 타입: developer-guide
+   버전: 2025-08-28
+   내용 (처음 150자): State-of-the-art deep learning (DL) models consist of complex multi-layered neural
+            networks with billions of parameters that can take thou...
+------------------------------------------------------------
+
+... 나머지 29개 문서는 생략
+
+🔍 검색 테스트:
+================================================================================
+
+🔍 'SageMaker Overview' 검색 결과:
+--------------------------------------------------
+   결과 1 (유사도: 0.725) 🟡 높음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: What Is SageMaker Training Compiler?...
+
+   결과 2 (유사도: 0.672) 🟡 높음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: Amazon SageMaker Training Compiler...
+
+   결과 3 (유사도: 0.667) 🟡 높음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: Amazon SageMaker Training Compiler - Amazon SageMaker AI  
+What Is SageMaker Training Compiler?  
+How It Works...
+
+   결과 4 (유사도: 0.611) 🟡 높음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: instances with minimal changes to your code. Bring your deep learning models to SageMaker AI and
+            enable SageMaker Training Compiler to acc...
+
+   결과 5 (유사도: 0.603) 🟡 높음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: per iteration. The final trained model from the compiler-accelerated training job is
+            identical to the one from the ordinary training job. ...
+
+
+🔍 'cost optimization' 검색 결과:
+--------------------------------------------------
+   결과 1 (유사도: 0.301) 🔴 낮음:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: SageMaker AI managed warm pools let you retain and reuse provisioned infrastructure after the
+        completion of a training job to reduce latency f...
+
+   결과 2 (유사도: 0.269) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: State-of-the-art deep learning (DL) models consist of complex multi-layered neural
+            networks with billions of parameters that can take thou...
+
+   결과 3 (유사도: 0.268) 🔴 낮음:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: Considerations...
+
+   결과 4 (유사도: 0.234) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: SageMaker Training Compiler converts DL models from their high-level language representation to
+            hardware-optimized instructions. Specifica...
+
+   결과 5 (유사도: 0.232) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: instances with minimal changes to your code. Bring your deep learning models to SageMaker AI and
+            enable SageMaker Training Compiler to acc...
+
+
+🔍 'training models' 검색 결과:
+--------------------------------------------------
+   결과 1 (유사도: 0.492) 🟠 보통:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: Matching training jobs...
+
+   결과 2 (유사도: 0.350) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: State-of-the-art deep learning (DL) models consist of complex multi-layered neural
+            networks with billions of parameters that can take thou...
+
+   결과 3 (유사도: 0.337) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: per iteration. The final trained model from the compiler-accelerated training job is
+            identical to the one from the ordinary training job. ...
+
+   결과 4 (유사도: 0.326) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: SageMaker Training Compiler converts DL models from their high-level language representation to
+            hardware-optimized instructions. Specifica...
+
+   결과 5 (유사도: 0.323) 🔴 낮음:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: Create an initial training job with a value greater than 0. When you run
+                        this first training job, this âcold-startsâ a clu...
+
+
+🔍 'notebook instances' 검색 결과:
+--------------------------------------------------
+   결과 1 (유사도: 0.436) 🟠 보통:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: instances with minimal changes to your code. Bring your deep learning models to SageMaker AI and
+            enable SageMaker Training Compiler to acc...
+
+   결과 2 (유사도: 0.343) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: per iteration. The final trained model from the compiler-accelerated training job is
+            identical to the one from the ordinary training job. ...
+
+   결과 3 (유사도: 0.317) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: State-of-the-art deep learning (DL) models consist of complex multi-layered neural
+            networks with billions of parameters that can take thou...
+
+   결과 4 (유사도: 0.307) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: Important  
+Amazon Web Services (AWS) announces that there will be no new releases or versions
+            of SageMaker Training Compiler. You can con...
+
+   결과 5 (유사도: 0.301) 🔴 낮음:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: When you create a warm pool, SageMaker AI mounts a special directory on the volume that
+                will persist throughout the lifecycle of the w...
+
+
+🔍 'machine learning service' 검색 결과:
+--------------------------------------------------
+   결과 1 (유사도: 0.419) 🟠 보통:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: State-of-the-art deep learning (DL) models consist of complex multi-layered neural
+            networks with billions of parameters that can take thou...
+
+   결과 2 (유사도: 0.349) 🔴 낮음:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: Matching training jobs...
+
+   결과 3 (유사도: 0.346) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: Important  
+Amazon Web Services (AWS) announces that there will be no new releases or versions
+            of SageMaker Training Compiler. You can con...
+
+   결과 4 (유사도: 0.337) 🔴 낮음:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: SageMaker AI managed warm pools let you retain and reuse provisioned infrastructure after the
+        completion of a training job to reduce latency f...
+
+   결과 5 (유사도: 0.328) 🔴 낮음:
+   제목: Amazon SageMaker Training Compiler
+   섹션: What Is SageMaker Training Compiler?
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/training-compiler.html
+   내용: per iteration. The final trained model from the compiler-accelerated training job is
+            identical to the one from the ordinary training job. ...
+
+
+🔍 'warm pools' 검색 결과:
+--------------------------------------------------
+   결과 1 (유사도: 0.872) 🟢 매우 높음:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: Warm pool creation...
+
+   결과 2 (유사도: 0.827) 🟢 매우 높음:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: Warm pool lifecycle...
+
+   결과 3 (유사도: 0.733) 🟡 높음:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: Maximum warm pool
+                    duration...
+
+   결과 4 (유사도: 0.647) 🟡 높음:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: SageMaker AI Managed Warm Pools...
+
+   결과 5 (유사도: 0.585) 🟠 보통:
+   제목: SageMaker AI Managed Warm Pools
+   섹션: How it works
+   URL: https://docs.aws.amazon.com/sagemaker/latest/dg/train-warm-pools.html
+   내용: SageMaker AI Managed Warm Pools - Amazon SageMaker AI  
+How it works  
+Considerations...
+
+
+📊 임베딩 모델 정보:
+   모델: text-embedding-3-small
+   차원: 1536
+   거리 측정: Cosine Distance
+   참고: 유사도 = 1 - 거리
