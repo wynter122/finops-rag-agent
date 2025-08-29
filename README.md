@@ -1,6 +1,9 @@
 # FinOps RAG Agent
+AWS SageMaker 비용 분석을 위한 ETL 파이프라인과 RAG(Retrieval-Augmented Generation) 기반 AI 에이전트입니다
 
-AWS SageMaker 비용 분석을 위한 ETL 파이프라인과 RAG(Retrieval-Augmented Generation) 기반 AI 에이전트입니다.
+<div align="center">
+  <img src="documentation/image.png" alt="FinOps AI Assistant Screenshot" width="800">
+</div>
 
 ## 🚀 기능
 
