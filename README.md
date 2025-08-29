@@ -102,6 +102,12 @@ flowchart TB
     subgraph DOCS["Docs Agent Pipeline (RAG)"]
         DA --> RET[Retriever]
         RET --> CH[Chroma Vector DB]
+        
+        %% Quality Check & Tavily Fallback
+        RET --> QC[Quality Check]
+        QC -->|Low Quality| TAV[Tavily Search]
+        QC -->|High Quality| OUT[Answer]
+        TAV --> OUT
 
         subgraph ING["Ingest"]
             SRC[(AWS SageMaker Docs HTML)]
@@ -114,7 +120,6 @@ flowchart TB
     %% ===== General & Output =====
     GA --> OUT[Answer]
     EXE --> OUT
-    RET --> OUT
     OUT --> U
 
     %% ===== Styles =====
