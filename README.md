@@ -54,13 +54,6 @@ finops-rag-agent/
 └── README.md
 ```
 
-## 📊 출력 데이터
-
-* fact\_sagemaker\_costs: 원시 + 파생 컬럼
-* agg\_endpoint\_hours, agg\_training\_cost, agg\_notebook\_hours: 리소스별 집계
-* agg\_spot\_ratio: Spot vs OnDemand 비용 비율
-* monthly\_summary: 월별 요약 통계
-
 ## 🏗 아키텍처
 
 * Router Agent: LangGraph 기반 워크플로우, LLM 의도 분류
