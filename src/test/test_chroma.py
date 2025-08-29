@@ -7,6 +7,7 @@ import chromadb
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from langchain_openai import OpenAIEmbeddings
 
 # 프로젝트 루트 디렉토리 찾기
 project_root = Path(__file__).parent.parent.parent
@@ -65,6 +66,9 @@ def test_chroma_db():
     print(f"\n🔍 검색 테스트:")
     print("=" * 80)
     
+    # 임베딩 함수 초기화 (1536차원으로 설정)
+    embeddings = OpenAIEmbeddings(model="text-embedding-3-small", dimensions=1536)
+    
     # 다양한 검색 쿼리 테스트
     test_queries = [
         "SageMaker Overview",
@@ -80,8 +84,11 @@ def test_chroma_db():
         print("-" * 50)
         
         try:
+            # 쿼리 텍스트를 임베딩으로 변환
+            query_embedding = embeddings.embed_query(query)
+            
             query_results = collection.query(
-                query_texts=[query],
+                query_embeddings=[query_embedding],
                 n_results=5,  # 결과 수 증가
                 include=["documents", "metadatas", "distances"]
             )

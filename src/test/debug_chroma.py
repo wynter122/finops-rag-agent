@@ -23,7 +23,7 @@ def debug_chroma_index():
     try:
         # 임베딩 모델 초기화
         print(f"📝 임베딩 모델: {embed_model}")
-        embeddings = OpenAIEmbeddings(model=embed_model, dimensions=384)
+        embeddings = OpenAIEmbeddings(model=embed_model, dimensions=1536)
         
         # Chroma 벡터스토어 로드
         print(f"📁 인덱스 디렉토리: {index_dir}")
