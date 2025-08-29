@@ -18,7 +18,7 @@ load_dotenv()
 
 def _get_embeddings(model_name: str):
     """임베딩 모델 초기화"""
-    return OpenAIEmbeddings(model=model_name, dimensions=384)
+    return OpenAIEmbeddings(model=model_name, dimensions=1536)
 
 
 def load_vectorstore(index_dir: str, embed_model: str) -> Chroma:
