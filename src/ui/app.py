@@ -40,8 +40,8 @@ st.markdown("""
 💡 **무엇을 도와드릴까요?**
 - 📊 **비용 분석**: "이번 달 SageMaker 비용이 얼마나 나왔어요?"
 - 🔍 **사용 유형 상세 조회**: "Notebook 인스턴스 비용의 분포를 알려주세요", "Endpoint 사용 비용이 총 얼마인가요?"
-- 📚 **AWS 서비스 가이드**: "SageMaker의 Processing Job은 어떤 서비스인가요?", "SageMaker Canvas는 어떤 서비스인가요?"
-- 💰 **최적화 팁**: "Training 비용을 줄이는 방법이 있을까요?"
+- 📚 **AWS 서비스 가이드**: "SageMaker의 Processing Job은 어떤 서비스인가요?", "SageMaker에서 서버리스 추론은 어떻게 사용하나요?", "SageMaker Canvas는 어떤 서비스인가요?"
+- 💰 **최적화 팁**: "SageMaker의 비용은 어떻게 계산되나요", "Training 비용을 줄이는 방법이 있을까요?"
 
 자연어로 질문하시면 AI가 자동으로 분석하여 답변해드립니다.
 """)
