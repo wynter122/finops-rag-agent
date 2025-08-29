@@ -133,6 +133,6 @@ flowchart TB
 * NL2SQL + 안전한 SQL 실행 + 결과 요약
 * 문서 수집·청킹·임베딩 기반 Docs Agent
 * Chroma DB + OpenAI 임베딩 기반 RAG
-* 검색 최적화: 중복 제거, 유사도 임계값, 재순위화
+* 검색 최적화: 중복 제거, 유사도 임계값
 * 모든 응답에 SQL 결과나 문서 인용 포함
 
