@@ -19,12 +19,14 @@ with st.sidebar:
     st.title("⚙️ Settings")
     # 숨겨진 설정들 (기본값 사용)
     month = "latest"
-    show_sql = True
+    show_sql = False
     debug = False
     
     # 표시 토글들
-    show_table = st.checkbox("Show table (결과 표 표시)", value=True)
-    show_metrics = st.checkbox("Show metrics (숫자 요약 표시)", value=True)
+    # show_table = st.checkbox("Show table (결과 표 표시)", value=True)
+    show_table = False
+    # show_metrics = st.checkbox("Show metrics (숫자 요약 표시)", value=True)
+    show_metrics = False
     show_citations = st.checkbox("Show citations (참고문헌 표시)", value=True)
     
     st.caption("LangSmith tracing is enabled via environment if configured.")
@@ -37,9 +39,9 @@ st.markdown("""
 
 💡 **무엇을 도와드릴까요?**
 - 📊 **비용 분석**: "이번 달 SageMaker 비용이 얼마나 나왔어요?"
-- 🔍 **사용량 조회**: "Endpoint 사용량이 가장 많은 서비스는?"
-- 📚 **설정 가이드**: "SageMaker 설정 방법을 알려주세요"
-- 💰 **최적화 팁**: "비용을 줄이는 방법이 있을까요?"
+- 🔍 **사용 유형 상세 조회**: "Notebook 인스턴스 비용의 분포를 알려주세요", "Endpoint 사용 비용이 총 얼마인가요?"
+- 📚 **AWS 서비스 가이드**: "SageMaker의 Processing Job은 어떤 서비스인가요?", "SageMaker Canvas는 어떤 서비스인가요?"
+- 💰 **최적화 팁**: "Training 비용을 줄이는 방법이 있을까요?"
 
 자연어로 질문하시면 AI가 자동으로 분석하여 답변해드립니다.
 """)
