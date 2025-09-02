@@ -177,8 +177,10 @@ def _web_search(question: str) -> str:
             return "웹 검색을 사용할 수 없습니다. TAVILY_API_KEY 환경 변수가 설정되지 않았습니다."
         
         # Tavily 검색 도구 초기화
-        search_tool = TavilySearch(max_results=5, topic="technology")
-        search_results = search_tool.invoke(question)
+        search_tool = TavilySearch(max_results=5, topic="general")
+        query = f"technology {question}"
+
+        search_results = search_tool.invoke(query)
         
         # 검색 결과 포맷팅
         formatted_results = []
