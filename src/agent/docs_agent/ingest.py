@@ -90,9 +90,12 @@ def clean_html_for_text(html: str) -> str:
     return "\n".join(dedup)
 
 
-def scrape_and_load_documents() -> List[Document]:
+def scrape_and_load_documents(docs_limit: Optional[int] = None) -> List[Document]:
     """
     web_scraper를 사용하여 SageMaker 문서를 스크래핑하고 Document 형태로 변환
+    
+    Args:
+        docs_limit: 스크래핑할 최대 문서 수 (None이면 전체)
     
     Returns:
         Document 리스트 (각각 .page_content, .metadata['source'])
@@ -106,7 +109,12 @@ def scrape_and_load_documents() -> List[Document]:
     from doc_urls import get_combined_urls
     doc_urls = get_combined_urls()
     
-    print(f"스크래핑할 URL 수: {len(doc_urls)}")
+    # docs_limit이 설정된 경우 URL 목록 제한
+    if docs_limit is not None and docs_limit > 0:
+        doc_urls = doc_urls[:docs_limit]
+        print(f"제한된 URL 수: {len(doc_urls)} (전체: {len(get_combined_urls())})")
+    else:
+        print(f"전체 URL 스크래핑: {len(doc_urls)}")
     
     # 웹 스크래핑 실행
     scraped_docs = scraper.scrape_sagemaker_docs(doc_urls)
@@ -492,7 +500,10 @@ def write_manifest(chunks: List[Dict[str, Any]], index_dir: str, version_date: s
 
 def main():
     """CLI 엔트리포인트"""
-    parser = argparse.ArgumentParser(description="SageMaker 문서 웹 스크래핑 및 벡터스토어 저장")
+    parser = argparse.ArgumentParser(
+        description="SageMaker 문서 웹 스크래핑 및 벡터스토어 저장",
+        epilog="예시: python ingest.py --version-date 2025-01-01 --docs-limit 10"
+    )
     parser.add_argument(
         "--index",
         default=".chroma/sagemaker_web",
@@ -520,12 +531,17 @@ def main():
         default=120,
         help="청크 오버랩 (기본값: 120)"
     )
+    parser.add_argument(
+        "--docs-limit",
+        type=int,
+        help="스크래핑할 최대 문서 수 (기본값: 전체)"
+    )
     
     args = parser.parse_args()
     
     try:
         # 1. 웹 스크래핑을 통한 문서 로딩
-        documents = scrape_and_load_documents()
+        documents = scrape_and_load_documents(args.docs_limit)
         
         if not documents:
             print("스크래핑할 문서가 없습니다.")
